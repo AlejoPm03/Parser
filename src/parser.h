@@ -134,6 +134,20 @@ typedef struct nodes_t
     }
 
 /**
+ * Helper macro for crate a wildcard parsing node,
+ * is the same of the MAKE_NODE macro but it will match with everything
+ * NOTE: nodes are checked sequentially, all nodes after this node will be ignored
+ * CALLBACK: is the callback function
+ * NEXT: is the next node
+ */
+#define MAKE_WILDCARD_NODE(CALLBACK, NEXT) \
+    {                                      \
+        .value = NULL,                     \
+        .callback = CALLBACK,              \
+        .next = NEXT,                      \
+    }
+
+/**
  * @brief parser function, receives the buffer and the tree description and parse the buffer
  * @param buffer: buffer to parse
  * @param root_node tree description 
