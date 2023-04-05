@@ -89,6 +89,38 @@ typedef struct nodes_t
     }
 
 /**
+ * Helper macro for make a empty array of nodes this is a workaround 
+ * to create circular nodes.
+ * To create circular nodes, first create an empty node before all nodes that have dependency
+ * with this node, and after those nodes use the macro FILL_EMPTY_NODES to create the nodes
+ * Example:
+ * 
+ * MAKE_EMPTY_NODES(foo, &func);
+ * MAKE_NODES(bar, &func, {MAKE_NODE("bar", NULL, &foo)});
+ * FILL_EMPTY_NODES(foo, {MAKE_NODE("foo", NULL, &bar)})
+ * 
+ * in this example the next node of foo is bar and the next node of bar is foo
+ * 
+ *  
+ */
+#define MAKE_EMPTY_NODES(NAME, MATCH_FUNC) \
+    nodes_t NAME = {                       \
+        .name = #NAME,                     \
+        .match_func = MATCH_FUNC,          \
+    }
+
+/**
+ * Helper macro to fill a empty node
+ * NAME: nodes_t name
+ * ...: array of node_t
+ */
+#define FILL_EMPTY_NODES(NAME, ...)         \
+    const node_t NAME##_NODE[] =            \
+        __VA_ARGS__;                        \
+    NAME.nodes = NAME##_NODE; \
+    *(int *)&NAME.size = sizeof(NAME##_NODE) / sizeof(node_t);
+
+/**
  * Helper macro for crate parsing nodes
  * VALUE is the match case that it be compared with the buffer
  * CALLBACK is the callback function
