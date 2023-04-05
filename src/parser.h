@@ -52,6 +52,30 @@ typedef struct nodes_t
 } nodes_t;
 
 /**
+ * LOG prints macros, default log output is printf
+ */
+#ifndef LOG_INFO
+#define LOG_INFO(...)     \
+    printf("\033[0;32m"); \
+    printf(__VA_ARGS__);  \
+    printf("\033[0m\n")
+#endif
+
+#ifndef LOG_WARN
+#define LOG_WARN(...)     \
+    printf("\033[0;33m"); \
+    printf(__VA_ARGS__);  \
+    printf("\033[0m\n")
+#endif
+
+#ifndef LOG_ERROR
+#define LOG_ERROR(...)    \
+    printf("\033[0;31m"); \
+    printf(__VA_ARGS__);  \
+    printf("\033[0m\n")
+#endif
+
+/**
  * Helper macro for make a array of nodes
  */
 #define MAKE_NODES(NAME, MATCH_FUNC, ...)             \
