@@ -1,6 +1,19 @@
+/**
+ * @file arguments.c
+ * @brief This example implement a simple command argument parser
+ */
 #include "parser.h"
 #include <string.h>
 
+/**
+ * @brief Consume the buffer, update the actual 
+ * pointer to the next item of the argument array
+ * @param buffer arguments buffer description 
+ * @return parser_consumer_data_t 
+ * return OK if the buffer was read with success
+ * return END_OF_BUFFER if archived the end of the buffer
+ * return ERROR if failed to read the buffer
+ */
 parser_consumer_data_t consumer(struct buffer_t *buffer)
 {
     if (buffer->actual == NULL)
@@ -20,11 +33,16 @@ parser_consumer_data_t consumer(struct buffer_t *buffer)
     return OK;
 }
 
-
-
+/**
+ * @brief compare the matching node with the input argument
+ * 
+ * @param data array of arguments 
+ * @param match_value the value of the node
+ * @return parser_match_t if have match return EQUAL if not returns NOT_EQUAL
+ */
 parser_match_t match_func(void *data, const void *match_value)
 {
-    LOG_INFO("tryng match");
+    LOG_INFO("trying match");
     if (!strcmp(*(char **)data, (char *)match_value))
     {
         LOG_INFO("equal");
@@ -50,6 +68,7 @@ void parse_echo(buffer_t *buffer, const void *value)
 int main(int argc, char *argv[])
 {
 
+    /* Create the buffer description*/
     buffer_t buffer = {
         .begin = argv,
         .actual = argv,
@@ -57,11 +76,19 @@ int main(int argc, char *argv[])
         .consumer = &consumer,
     };
 
+/**
+ * Describes the argument tree:
+ * -help: output the help message
+ * -echo: print the next argument
+ */
+
+/* Create a sub root node to ignore the first argument (filename) */
     MAKE_EMPTY_NODES(
         sub_root,
         &match_func
     );
     
+/* Create the echo node */
     MAKE_NODES(
         echo,
         &match_func,
@@ -69,6 +96,7 @@ int main(int argc, char *argv[])
             MAKE_WILDCARD_NODE(parse_echo, &sub_root),
         });
 
+/* Fill the sub root node with the childs */
     FILL_EMPTY_NODES(
         sub_root,
         {
@@ -77,6 +105,7 @@ int main(int argc, char *argv[])
             MAKE_NODE("-echo", NULL, &echo),
         });
 
+/* Create the root node (filename) that is ignored */
     MAKE_NODES(
         root,
         &match_func,

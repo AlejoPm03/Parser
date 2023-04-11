@@ -66,11 +66,26 @@ int main()
 {
     char uart_buffer[] = "WRTE:VAR2:VAR3:1000";
 
+/* Describe the buffer */
     buffer_t buffer = {
         .begin = uart_buffer,
         .actual = uart_buffer,
         .end = &uart_buffer[sizeof(uart_buffer) / sizeof(char)],
         .consumer = &consumer};
+
+/**
+ * Read SCPI like messages all commands have 5 chars size
+ * example:
+ * XXXX:XXXX:XXXX:XXXX
+ * XXXX: is a command
+ * 
+ * WRTE: Write something
+ *      VAR1:XXXX Write the var 1 with the value XXXX.
+ *      VAR2:XXXX Write the var 2 with the value XXXX, if the next value is VAR3: read the var 3. 
+ * READ: 
+ *      ALLM: Read all measurements
+ * 
+ */
 
 
     MAKE_NODES(
