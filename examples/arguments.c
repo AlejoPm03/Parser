@@ -16,21 +16,21 @@
  */
 parser_consumer_data_t consumer(struct buffer_t *buffer)
 {
-    if (buffer->actual == NULL)
-    {
-        LOG_ERROR("error reading buffer: buffer is NULL");
-        return ERROR;
-    }
+	if (buffer->actual == NULL)
+	{
+		LOG_ERROR("error reading buffer: buffer is NULL");
+		return ERROR;
+	}
 
-    buffer->actual += sizeof(char **);
+	buffer->actual += sizeof(char **);
 
-    if (buffer->actual >= buffer->end)
-    {
-        LOG_INFO("end of buffer");
-        return END_OF_BUFFER;
-    }
+	if (buffer->actual >= buffer->end)
+	{
+		LOG_INFO("end of buffer");
+		return END_OF_BUFFER;
+	}
 
-    return OK;
+	return OK;
 }
 
 /**
@@ -42,39 +42,39 @@ parser_consumer_data_t consumer(struct buffer_t *buffer)
  */
 parser_match_t match_func(void *data, const void *match_value)
 {
-    LOG_INFO("trying match");
-    if (!strcmp(*(char **)data, (char *)match_value))
-    {
-        LOG_INFO("equal");
-        return EQUAL;
-    }
-    LOG_INFO("not equal: %s, %s", *(char **)data, (char *)match_value);
-    return NOT_EQUAL;
+	LOG_INFO("trying match");
+	if (!strcmp(*(char **)data, (char *)match_value))
+	{
+		LOG_INFO("equal");
+		return EQUAL;
+	}
+	LOG_INFO("not equal: %s, %s", *(char **)data, (char *)match_value);
+	return NOT_EQUAL;
 }
 
 void parse_help(buffer_t *buffer, const void *value)
 {
-    printf("arguments:\n\
-    -help: this message.\n\
-    -echo:  display the next argument\n");
+	printf("arguments:\n\
+	-help: this message.\n\
+	-echo:  display the next argument\n");
 }
 
 void parse_echo(buffer_t *buffer, const void *value)
 {
-    printf("%s\n", *(char **)buffer->actual);
+	printf("%s\n", *(char **)buffer->actual);
 }
 
 
 int main(int argc, char *argv[])
 {
 
-    /* Create the buffer description*/
-    buffer_t buffer = {
-        .begin = argv,
-        .actual = argv,
-        .end = &argv[argc],
-        .consumer = &consumer,
-    };
+	/* Create the buffer description*/
+	buffer_t buffer = {
+		.begin = argv,
+		.actual = argv,
+		.end = &argv[argc],
+		.consumer = &consumer,
+	};
 
 /**
  * Describes the argument tree:
@@ -82,38 +82,38 @@ int main(int argc, char *argv[])
  * -echo: print the next argument
  */
 
-/* Create a sub root node to ignore the first argument (filename) */
-    MAKE_EMPTY_NODES(
-        sub_root,
-        &match_func
-    );
-    
+/* Create a sub root node */
+	MAKE_EMPTY_NODES(
+		sub_root,
+		&match_func
+	);
+	
 /* Create the echo node */
-    MAKE_NODES(
-        echo,
-        &match_func,
-        {
-            MAKE_WILDCARD_NODE(parse_echo, &sub_root),
-        });
+	MAKE_NODES(
+		echo,
+		&match_func,
+		{
+			MAKE_WILDCARD_NODE(parse_echo, &sub_root),
+		});
 
 /* Fill the sub root node with the childs */
-    FILL_EMPTY_NODES(
-        sub_root,
-        {
-            /* Read help node and read next arguments*/
-            MAKE_NODE("-help", parse_help, &sub_root),
-            MAKE_NODE("-echo", NULL, &echo),
-        });
+	FILL_EMPTY_NODES(
+		sub_root,
+		{
+			/* Read help node and read next arguments*/
+			MAKE_NODE("-help", parse_help, &sub_root),
+			MAKE_NODE("-echo", NULL, &echo),
+		});
 
-/* Create the root node (filename) that is ignored */
-    MAKE_NODES(
-        root,
-        &match_func,
-        {
-            /* Ignore filename */
-            MAKE_WILDCARD_NODE(NULL, &sub_root),
-        });
+/* Create the root node to ignore the filename */
+	MAKE_NODES(
+		root,
+		&match_func,
+		{
+			/* Ignore filename */
+			MAKE_WILDCARD_NODE(NULL, &sub_root),
+		});
 
-    
-    parser(&buffer, &root);
+	
+	parser(&buffer, &root);
 }
